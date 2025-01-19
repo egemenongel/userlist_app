@@ -34,3 +34,19 @@ class UserRepository: UserRepositoryProtocol {
         }
     }
 }
+
+class MockUserRepository: UserRepositoryProtocol {
+    var shouldReturnError = false
+
+    func fetchUsers(completion: @escaping (Result<[User], Error>) -> Void) {
+        if shouldReturnError {
+            completion(.failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to fetch users"])))
+        } else {
+            let mockUsers = [
+                User(id: 1, name: "John Doe", email: "johndoe@example.com", phone: "123-456-7890", website: "johndoe.com"),
+                User(id: 2, name: "Jane Smith", email: "janesmith@example.com", phone: "987-654-3210", website: "janesmith.com")
+            ]
+            completion(.success(mockUsers))
+        }
+    }
+}
