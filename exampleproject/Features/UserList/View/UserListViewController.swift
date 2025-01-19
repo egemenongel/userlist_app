@@ -22,23 +22,24 @@ class UserListViewController: UIViewController {
     }
 
     private func setupUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         title = "User List"
+        navigationController?.navigationBar.prefersLargeTitles = true
 
         tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "UserCell")
+        tableView.register(UserTableViewCell.self, forCellReuseIdentifier: UserTableViewCell.identifier)
+        tableView.separatorStyle = .singleLine
 
         view.addSubview(tableView)
 
-        // Constraints
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            tableView.leftAnchor.constraint(equalTo: view.leftAnchor),
-            tableView.rightAnchor.constraint(equalTo: view.rightAnchor)
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
     }
 
@@ -59,9 +60,11 @@ extension UserListViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "UserCell", for: indexPath)
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: UserTableViewCell.identifier, for: indexPath) as? UserTableViewCell else {
+            return UITableViewCell()
+        }
         let user = viewModel.user(at: indexPath.row)
-        cell.textLabel?.text = "\(user.name) - \(user.email)"
+        cell.configure(with: user)
         return cell
     }
 }
@@ -71,16 +74,57 @@ extension UserListViewController: UITableViewDataSource {
 extension UserListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let user = viewModel.user(at: indexPath.row)
-
-        // Create a new UserDetailService
-        let service = UserDetailService(repository: UserDetailRepository())
-
-        // Create a new UserDetailViewModel with the selected user's ID
-        let detailViewModel = UserDetailViewModel(service: service, userId: user.id)
-
-        // Pass the UserDetailViewModel to UserDetailViewController
+        let detailViewModel = UserDetailViewModel(service: UserDetailService(), userId: user.id)
         let detailVC = UserDetailViewController(viewModel: detailViewModel)
-
         navigationController?.pushViewController(detailVC, animated: true)
+    }
+}
+
+// MARK: - Custom UITableViewCell
+
+class UserTableViewCell: UITableViewCell {
+    static let identifier = "UserTableViewCell"
+
+    private let nameLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.preferredFont(forTextStyle: .headline)
+        label.textColor = .label
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private let emailLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.preferredFont(forTextStyle: .subheadline)
+        label.textColor = .secondaryLabel
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        contentView.addSubview(nameLabel)
+        contentView.addSubview(emailLabel)
+
+        NSLayoutConstraint.activate([
+            nameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
+            nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            nameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+
+            emailLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
+            emailLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
+            emailLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
+            emailLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8)
+        ])
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    func configure(with user: User) {
+        nameLabel.text = user.name
+        emailLabel.text = user.email
     }
 }

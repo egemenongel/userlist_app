@@ -8,18 +8,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         willConnectTo session: UISceneSession,
         options connectionOptions: UIScene.ConnectionOptions
     ) {
-        // Ensure the scene is a UIWindowScene
         guard let windowScene = (scene as? UIWindowScene) else { return }
 
-        // Initialize the window and root view controller
         let window = UIWindow(windowScene: windowScene)
 
-        // Set up the view model and view controller
         let userService = UserService()
         let userListViewModel = UserListViewModel(service: userService)
         let userListVC = UserListViewController(viewModel: userListViewModel)
-
-        // Embed in navigation controller
         let navigationController = UINavigationController(rootViewController: userListVC)
         window.rootViewController = navigationController
 

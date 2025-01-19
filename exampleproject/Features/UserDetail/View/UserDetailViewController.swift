@@ -26,16 +26,31 @@ class UserDetailViewController: UIViewController {
     }
 
     private func setupUI() {
-        view.backgroundColor = .white
-        let stackView = UIStackView(arrangedSubviews: [nameLabel, emailLabel, phoneLabel, websiteLabel])
+        view.backgroundColor = .systemGroupedBackground
+        title = "User Details"
+        navigationController?.navigationBar.prefersLargeTitles = true
+
+        let labels = [nameLabel, emailLabel, phoneLabel, websiteLabel]
+        for item in labels {
+            item.font = UIFont.systemFont(ofSize: 20, weight: .medium)
+            item.textColor = .systemBlue
+            item.textAlignment = .left
+            item.numberOfLines = 0
+        }
+
+        let stackView = UIStackView(arrangedSubviews: labels)
         stackView.axis = .vertical
-        stackView.spacing = 8
+        stackView.spacing = 16
+        stackView.alignment = .leading
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
         view.addSubview(stackView)
+
         NSLayoutConstraint.activate([
             stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
+            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32)
         ])
     }
 
